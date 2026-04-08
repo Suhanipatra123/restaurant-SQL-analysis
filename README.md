@@ -35,12 +35,12 @@ JOIN ratings rt ON r.Restaurant_ID = rt.Restaurant_ID
 GROUP BY r.Name
 ORDER BY avg_rating DESC;
 
-⚠️ Challenges Faced
+## ⚠️ Challenges Faced
 Handling multiple joins
 Debugging empty outputs
 Understanding SQL execution order
 
-🚀 Outcome
+## 🚀 Outcome
 Improved SQL skills and real-world data analysis understanding.
 
-Author-Suhani Patra.
+## Author-Suhani Patra.
