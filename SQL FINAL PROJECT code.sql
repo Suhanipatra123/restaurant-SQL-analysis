@@ -805,5 +805,120 @@ ON r.Restaurant_ID = rt.Restaurant_ID
 GROUP BY r.Restaurant_ID, r.Name;
 
 -- =============================================================
+-- Some Additional & Important SQL Queries
+-- =============================================================
+
+-- 1. Total restaurants rated by each consumer
+SELECT Consumer_ID, COUNT(Restaurant_ID) AS total_ratings
+FROM ratings
+GROUP BY Consumer_ID
+ORDER BY total_ratings DESC;
+
+-- 2. Top 5 consumers based on average rating (Window Function)
+SELECT Consumer_ID, AVG(Overall_Rating) AS avg_rating,
+RANK() OVER (ORDER BY AVG(Overall_Rating) DESC) AS rank_no
+FROM ratings
+GROUP BY Consumer_ID
+LIMIT 5;
+
+-- 3. Consumers who rated more than average rating (Subquery)
+SELECT *
+FROM ratings
+WHERE Overall_Rating > (
+    SELECT AVG(Overall_Rating) FROM ratings
+);
+
+-- 4. Find second highest rated restaurant
+SELECT Restaurant_ID, AVG(Overall_Rating) AS avg_rating
+FROM ratings
+GROUP BY Restaurant_ID
+ORDER BY avg_rating DESC
+LIMIT 1 OFFSET 1;
+
+-- 5. Join consumers and restaurants
+SELECT c.Consumer_ID, c.Age, r.Name
+FROM consumers c
+JOIN ratings rt ON c.Consumer_ID = rt.Consumer_ID
+JOIN restaurants r ON rt.Restaurant_ID = r.Restaurant_ID;
+
+-- 6. Left Join (Consumers who may not have rated)
+SELECT c.Consumer_ID, r.Name
+FROM consumers c
+LEFT JOIN ratings rt ON c.Consumer_ID = rt.Consumer_ID
+LEFT JOIN restaurants r ON rt.Restaurant_ID = r.Restaurant_ID;
+
+-- 7. Average rating per restaurant
+SELECT Restaurant_ID, AVG(Overall_Rating) AS avg_rating
+FROM ratings
+GROUP BY Restaurant_ID
+HAVING AVG(Overall_Rating) > 1
+ORDER BY avg_rating DESC;
+
+-- 8. CASE statement for rating category
+SELECT Consumer_ID, Overall_Rating,
+CASE
+    WHEN Overall_Rating = 2 THEN 'Good'
+    WHEN Overall_Rating = 1 THEN 'Average'
+    ELSE 'Poor'
+END AS rating_category
+FROM ratings;
+
+-- 9. Create View for average ratings
+CREATE VIEW ConsumerAvgRatings AS
+SELECT Consumer_ID, AVG(Overall_Rating) AS avg_rating
+FROM ratings
+GROUP BY Consumer_ID;
+
+-- 10. Use View to get top consumers
+SELECT *
+FROM ConsumerAvgRatings
+ORDER BY avg_rating DESC
+LIMIT 5;
+
+-- 11. CTE for top restaurants
+WITH top_restaurants AS (
+    SELECT Restaurant_ID, AVG(Overall_Rating) AS avg_rating
+    FROM ratings
+    GROUP BY Restaurant_ID
+)
+SELECT *
+FROM top_restaurants
+WHERE avg_rating > 1.5;
+
+-- 12. Consumers who prefer Mexican cuisine (JOIN + FILTER)
+SELECT c.Consumer_ID, rc.Cuisine
+FROM consumers c
+JOIN consumer_preferences cp ON c.Consumer_ID = cp.Consumer_ID
+JOIN restaurant_cuisines rc ON cp.Preferred_Cuisine = rc.Cuisine
+WHERE rc.Cuisine = 'Mexican';
+
+-- 13. Count of restaurants per cuisine
+SELECT Cuisine, COUNT(Restaurant_ID) AS total_restaurants
+FROM restaurant_cuisines
+GROUP BY Cuisine
+ORDER BY total_restaurants DESC;
+
+-- 14. Ranking restaurants within each city (Window Function)
+SELECT r.City, r.Name,
+RANK() OVER (PARTITION BY r.City ORDER BY AVG(rt.Overall_Rating) DESC) AS rank_in_city
+FROM restaurants r
+JOIN ratings rt ON r.Restaurant_ID = rt.Restaurant_ID
+GROUP BY r.City, r.Name;
+
+-- ##Concepts Covered
+-- Joins (Inner, Left)  
+-- Subqueries  
+-- GROUP BY & HAVING  
+-- ORDER BY  
+-- Window Functions (RANK)  
+-- CTE (WITH)  
+-- Views  
+-- CASE Statements  
+
+-- =============================================================
 -- END OF SCRIPT
 -- =============================================================
+
+-- ## Conclusion
+-- These queries demonstrate strong SQL fundamentals including data filtering, aggregation, ranking, and relational joins.  
+-- The project reflects real-world problem-solving skills and readiness for data analyst roles.
